@@ -10,6 +10,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using WpfApp1.MODELS;
 using System.Collections.ObjectModel;
+using System;
 
 namespace WpfApp1
 {
@@ -62,17 +63,29 @@ namespace WpfApp1
 
         private void Button_Click_Open_File(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog OPF = new OpenFileDialog();
-            if (OPF.ShowDialog() == true)
+            try
             {
-                if (Path.GetExtension(OPF.FileName).Equals(".json"))
-                    using (StreamReader streamReader = new StreamReader(OPF.FileName))
+                OpenFileDialog OPF = new OpenFileDialog();
+                if (OPF.ShowDialog() == true)
+                {
+                    if (Path.GetExtension(OPF.FileName).Equals(".json"))
+                        using (StreamReader streamReader = new StreamReader(OPF.FileName))
+                        {
+                            string json = streamReader.ReadToEnd();
+                            passangerDataCollection.passangers = JsonConvert.DeserializeObject<ObservableCollection<Passangers>>(json);
+                            memberDataGrid.DataContext = passangerDataCollection.passangers;
+                        }
+                    else
                     {
-                        string json = streamReader.ReadToEnd();                        
-                        passangerDataCollection.passangers =  JsonConvert.DeserializeObject<ObservableCollection<Passangers>>(json);
-                        memberDataGrid.DataContext = passangerDataCollection.passangers;
+                        MessageBox.Show("Format exception error!","Error!",MessageBoxButton.OK);
                     }
+                }
             }
+            catch (Exception ex) 
+            {
+                MessageBox.Show("Something went wrong!","Error!", MessageBoxButton.OK);
+            }
+            
         }
     }
 }
